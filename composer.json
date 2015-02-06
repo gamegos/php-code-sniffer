@@ -7,8 +7,15 @@
 			"": "src/"
 		}
 	},
+	"bin" : [
+		"bin/phpcs",
+		"bin/phpcs-pre-commit",
+		"bin/phpcbf"
+	],
 	"require": {
-		"php": ">=5.3.10",
+		"php": ">=5.3.10"
+	},
+	"require-dev": {
 		"squizlabs/php_codesniffer": "2.*"
 	},
 	"authors": [
