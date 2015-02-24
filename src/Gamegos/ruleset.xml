@@ -27,4 +27,9 @@
 			<property name="ignoreBlankLines" value="false"/>
 		</properties>
 	</rule>
+	<rule ref="Squiz.WhiteSpace.OperatorSpacing"/>
+	<rule ref="Gamegos.Arrays.ArrayDeclaration">
+		<exclude name="Gamegos.Arrays.ArrayDeclaration.SingleLineNotAllowed"/>
+		<exclude name="Gamegos.Arrays.ArrayDeclaration.NotLowerCase"/>
+	</rule>
 </ruleset>
