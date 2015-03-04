@@ -11,6 +11,10 @@
 		<type>error</type>
 	</rule>
 	<rule ref="Generic.PHP.Syntax"/>
+	<rule ref="Generic.Formatting">
+		<exclude name="Generic.Formatting.DisallowMultipleStatements"/>
+		<exclude name="Generic.Formatting.NoSpaceAfterCast"/>
+	</rule>
 	<rule ref="Generic.Commenting.DocComment.MissingShort">
 		<type>warning</type>
 	</rule>
