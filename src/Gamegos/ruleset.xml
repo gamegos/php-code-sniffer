@@ -18,7 +18,9 @@
 		<exclude name="PEAR.Commenting.FunctionComment.MissingParamComment"/>
 		<exclude name="PEAR.Commenting.FunctionComment.MissingReturn"/>
 		<exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType"/>
+		<exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName"/>
 	</rule>
+	<rule ref="Squiz.Commenting.DocCommentAlignment"/>
 	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
 		<type>warning</type>
 	</rule>
