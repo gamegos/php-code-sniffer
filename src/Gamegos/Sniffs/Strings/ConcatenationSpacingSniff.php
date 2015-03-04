@@ -5,24 +5,29 @@ namespace Gamegos\Sniffs\Strings;
 use PHP_CodeSniffer_Sniff;
 use PHP_CodeSniffer_File;
 
+/**
+ * Gamegos.Strings.ConcatenationSpacing Sniff
+ * 1) There must be only one space between the concatenation operator (.) and the strings being concatenated.
+ * 2) Multiline string concatenations must be aligned.
+ * @author Safak Ozpinar
+ */
 class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
 {
     /**
      * @return array
      * @see    PHP_CodeSniffer_Sniff::register()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * @author Safak Ozpinar
      */
     public function register()
     {
         return array(T_STRING_CONCAT);
-
     }
 
     /**
      * @param  PHP_CodeSniffer_File $phpcsFile
      * @param  int $stackPtr
      * @see    PHP_CodeSniffer_Sniff::process()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * @author Safak Ozpinar
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
@@ -62,14 +67,24 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
                 );
 
                 if ($tokens[$prevLineOp]['code'] === T_EQUAL) {
+                    // Align to the assignment operator.
                     return $tokens[$prevLineOp]['column'] - 1;
                 } elseif ($tokens[$prevLineOp]['code'] === T_STRING_CONCAT) {
+                    // Align to the previous line.
                     $prev2 = $phpcsFile->findPrevious(T_WHITESPACE, $prevLineOp - 1, null, true);
                     if ($tokens[$prev2]['line'] !== $tokens[$prevLineOp]['line']) {
                         return $tokens[$prevLineOp]['column'] - 1;
                     }
                     return $findExpected($prevLineOp);
                 }
+
+                $startOfStmt = $phpcsFile->findStartOfStatement($stackPtr);
+                if ($tokens[$startOfStmt]['code'] == T_RETURN) {
+                    // Align to the return statement with 5 spaces.
+                    return $tokens[$startOfStmt]['column'] + 4;
+                }
+                // Align to the start of the statement with 4 spaces.
+                return $tokens[$startOfStmt]['column'] + 3;
             };
 
             $found = $tokens[$stackPtr]['column'] - 1;
