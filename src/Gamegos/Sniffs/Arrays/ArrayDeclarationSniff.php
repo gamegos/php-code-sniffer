@@ -14,7 +14,7 @@ use Squiz_Sniffs_Arrays_ArrayDeclarationSniff;
  * - Number of spaces before array elements is increased from 1 to 4.
  * - Removed NoComma rule (syntax checker does this).
  * - Removed NoCommaAfterLast rule.
- * @author Safak Ozpinar
+ * - Removed MultiLineNotAllowed rule.
  */
 class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 {
@@ -25,13 +25,11 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
      * @param  int $arrayStart
      * @param  int $arrayEnd
      * @see    Squiz_Sniffs_Arrays_ArrayDeclarationSniff::processMultiLineArray()
-     * @author Safak Ozpinar <safak@gamegos.com>
      */
     public function processMultiLineArray(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $arrayStart, $arrayEnd)
     {
-        $tokens       = $phpcsFile->getTokens();
-
-        $firstOnLine = $tokens[$phpcsFile->findFirstOnLine(T_WHITESPACE, $arrayStart, true)];
+        $tokens         = $phpcsFile->getTokens();
+        $firstOnLine    = $tokens[$phpcsFile->findFirstOnLine(T_WHITESPACE, $arrayStart, true)];
         $firstLineStart = $firstOnLine['column'];
 
         // Check the closing bracket is on a new line.
@@ -219,50 +217,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }//end if
         }//end for
 
-        // Check for mutli-line arrays that should be single-line.
-        $singleValue = false;
-
-        if (empty($indices) === true) {
-            $singleValue = true;
-        } elseif (count($indices) === 1 && $tokens[$lastToken]['code'] === T_COMMA) {
-            // There may be another array value without a comma.
-            $exclude     = PHP_CodeSniffer_Tokens::$emptyTokens;
-            $exclude[]   = T_COMMA;
-            $nextContent = $phpcsFile->findNext($exclude, ($indices[0]['value'] + 1), $arrayEnd, true);
-            if ($nextContent === false) {
-                $singleValue = true;
-            }
-        }
-
-        if ($singleValue === true) {
-            // Array cannot be empty, so this is a multi-line array with
-            // a single value. It should be defined on single line.
-            $error = 'Multi-line array contains a single value; use single-line array instead';
-            $fix   = $phpcsFile->addFixableError($error, $stackPtr, 'MultiLineNotAllowed');
-
-            if ($fix === true) {
-                $phpcsFile->fixer->beginChangeset();
-                for ($i = ($arrayStart + 1); $i < $arrayEnd; $i++) {
-                    if ($tokens[$i]['code'] !== T_WHITESPACE) {
-                        break;
-                    }
-
-                    $phpcsFile->fixer->replaceToken($i, '');
-                }
-
-                for ($i = ($arrayEnd - 1); $i > $arrayStart; $i--) {
-                    if ($tokens[$i]['code'] !== T_WHITESPACE) {
-                        break;
-                    }
-
-                    $phpcsFile->fixer->replaceToken($i, '');
-                }
-
-                $phpcsFile->fixer->endChangeset();
-            }
-
-            return;
-        }//end if
+        // REMOVED MultiLineNotAllowed rule.
 
         /*
             This section checks for arrays that don't specify keys.
@@ -287,7 +242,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             );
 
             if ($tokens[$trailingContent]['code'] !== T_COMMA) {
-                // REMOVED.
+                // REMOVED NoCommaAfterLast rule.
             } else {
                 $phpcsFile->recordMetric($stackPtr, 'Array end comma', 'yes');
             }
@@ -510,7 +465,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                 }
 
                 if (($nextComma === false) || ($tokens[$nextComma]['line'] !== $valueLine)) {
-                    // REMOVED.
+                    // REMOVED NoComma rule.
                 }
 
                 // Check that there is no space before the comma.
