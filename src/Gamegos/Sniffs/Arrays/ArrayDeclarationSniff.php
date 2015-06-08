@@ -15,6 +15,8 @@ use Squiz_Sniffs_Arrays_ArrayDeclarationSniff;
  * - Removed NoComma rule (syntax checker does this).
  * - Removed NoCommaAfterLast rule.
  * - Removed MultiLineNotAllowed rule.
+ * - Removed NoKeySpecified rule.
+ * - Removed KeySpecified rule.
  */
 class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 {
@@ -143,12 +145,6 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                     continue;
                 }
 
-                if ($keyUsed === true && $tokens[$lastToken]['code'] === T_COMMA) {
-                    $error = 'No key specified for array entry; first entry specifies key';
-                    $phpcsFile->addError($error, $nextToken, 'NoKeySpecified');
-                    return;
-                }
-
                 if ($keyUsed === false) {
                     if ($tokens[($nextToken - 1)]['code'] === T_WHITESPACE) {
                         $content = $tokens[($nextToken - 2)]['content'];
@@ -180,11 +176,6 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }//end if
 
             if ($tokens[$nextToken]['code'] === T_DOUBLE_ARROW) {
-                if ($singleUsed === true) {
-                    $error = 'Key specified for array entry; first entry has no key';
-                    $phpcsFile->addError($error, $nextToken, 'KeySpecified');
-                    return;
-                }
 
                 $currentEntry['arrow'] = $nextToken;
                 $keyUsed = true;
