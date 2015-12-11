@@ -145,6 +145,10 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                     continue;
                 }
 
+                if ($keyUsed === true && $tokens[$lastToken]['code'] === T_COMMA) {
+                    // REMOVED 'NoKeySpecified' rule.
+                }
+
                 if ($keyUsed === false) {
                     if ($tokens[($nextToken - 1)]['code'] === T_WHITESPACE) {
                         $content = $tokens[($nextToken - 2)]['content'];
@@ -176,6 +180,9 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }//end if
 
             if ($tokens[$nextToken]['code'] === T_DOUBLE_ARROW) {
+                if ($singleUsed === true) {
+                    // REMOVED 'KeySpecified' rule.
+                }
 
                 $currentEntry['arrow'] = $nextToken;
                 $keyUsed = true;
