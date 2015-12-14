@@ -5,7 +5,6 @@
 /.externalToolBuilders
 /.idea
 /composer.phar
-/composer.lock
 /nbproject/private
 /nbproject
 /vendor
