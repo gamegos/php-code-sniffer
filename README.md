@@ -32,3 +32,27 @@ as your vendor binary directory name depending on your composer configuration.
 Make sure the hook script is executable.
 
     chmod +x .git/hooks/pre-commit
+
+Customize
+---------
+You can customize configuration by adding a file called `phpcs.xml` file into
+the root directory of your project. The phpcs.xml file has exactly the same
+format as a normal ruleset.xml file, so all the same options are available in
+it. You need to define `Gamegos` rule to import all the `Gamegos` rules.
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <ruleset>
+        <rule ref="Gamegos" />
+    </ruleset>
+
+### Using a custom bootstrap file
+You can add custom bootstap files to be included before beginning the run.
+Some sniffs need to load classes from your project; so adding a autoload file
+will allow sniffs to do this.
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <ruleset>
+        <rule ref="Gamegos" />
+        <arg name="bootstrap" value="vendor/autoload.php" />
+    </ruleset>
+
