@@ -1,27 +1,27 @@
 {
-	"name": "gamegos/php-code-sniffer",
-	"type": "library",
-	"description": "Gamegos PHP Code Sniffer",
-	"autoload": {
-		"psr-4": {
-			"": "src/"
-		}
-	},
-	"bin" : [
-		"bin/phpcs",
-		"bin/phpcs-pre-commit",
-		"bin/phpcbf"
-	],
-	"require": {
-		"php": ">=5.3.10"
-	},
-	"require-dev": {
-		"squizlabs/php_codesniffer": "2.*"
-	},
-	"authors": [
-		{
-			"name": "Safak Ozpinar",
-			"email": "safak@gamegos.com"
-		}
-	]
+    "name": "gamegos/php-code-sniffer",
+    "type": "library",
+    "description": "Gamegos PHP Code Sniffer",
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    },
+    "bin" : [
+        "bin/phpcs",
+        "bin/phpcs-pre-commit",
+        "bin/phpcbf"
+    ],
+    "require": {
+        "php": ">=5.3.10"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "2.*"
+    },
+    "authors": [
+        {
+            "name": "Safak Ozpinar",
+            "email": "safak@gamegos.com"
+        }
+    ]
 }

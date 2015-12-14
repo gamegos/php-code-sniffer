@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="Gamegos">
-	<description>The coding standard for Gamegos.</description>
-	<arg name="colors" />
-	<arg value="s"/>
-	<rule ref="PSR2">
-		<exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
-		<exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
-		<exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterBracket"/>
-		<exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
-	</rule>
-	<rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
-		<type>error</type>
-	</rule>
-	<rule ref="Generic.PHP.Syntax"/>
-	<rule ref="Generic.Formatting">
-		<exclude name="Generic.Formatting.DisallowMultipleStatements"/>
-		<exclude name="Generic.Formatting.NoSpaceAfterCast"/>
-	</rule>
-	<rule ref="Generic.Commenting.DocComment.MissingShort">
-		<type>warning</type>
-	</rule>
-	<rule ref="PEAR.Commenting.FunctionComment">
-		<exclude name="PEAR.Commenting.FunctionComment.MissingParamComment"/>
-		<exclude name="PEAR.Commenting.FunctionComment.MissingReturn"/>
-		<exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType"/>
-		<exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName"/>
-	</rule>
-	<rule ref="Squiz.Commenting.DocCommentAlignment"/>
-	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
-		<type>warning</type>
-	</rule>
-	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
-		<properties>
-			<property name="ignoreBlankLines" value="false"/>
-		</properties>
-	</rule>
-	<rule ref="Squiz.WhiteSpace.OperatorSpacing"/>
-	<rule ref="Gamegos.Arrays.ArrayDeclaration">
-		<exclude name="Gamegos.Arrays.ArrayDeclaration.SingleLineNotAllowed"/>
-		<exclude name="Gamegos.Arrays.ArrayDeclaration.NotLowerCase"/>
-	</rule>
+    <description>The coding standard for Gamegos.</description>
+    <arg name="colors" />
+    <arg value="s"/>
+    <rule ref="PSR2">
+        <exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterBracket"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
+    </rule>
+    <rule ref="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed">
+        <type>error</type>
+    </rule>
+    <rule ref="Generic.PHP.Syntax"/>
+    <rule ref="Generic.Formatting">
+        <exclude name="Generic.Formatting.DisallowMultipleStatements"/>
+        <exclude name="Generic.Formatting.NoSpaceAfterCast"/>
+    </rule>
+    <rule ref="Generic.Commenting.DocComment.MissingShort">
+        <type>warning</type>
+    </rule>
+    <rule ref="Squiz.Commenting.DocCommentAlignment"/>
+    <rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+        <type>warning</type>
+    </rule>
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+    <rule ref="Squiz.WhiteSpace.OperatorSpacing"/>
+    <rule ref="Gamegos.Arrays.ArrayDeclaration">
+        <exclude name="Gamegos.Arrays.ArrayDeclaration.SingleLineNotAllowed"/>
+        <exclude name="Gamegos.Arrays.ArrayDeclaration.NotLowerCase"/>
+    </rule>
+    <rule ref="Gamegos.Commenting.FunctionComment">
+        <exclude name="Gamegos.Commenting.FunctionComment.MissingParamComment"/>
+        <exclude name="Gamegos.Commenting.FunctionComment.MissingReturn"/>
+        <exclude name="Gamegos.Commenting.FunctionComment.SpacingAfterParamType"/>
+        <exclude name="Gamegos.Commenting.FunctionComment.SpacingAfterParamName"/>
+    </rule>
 </ruleset>
