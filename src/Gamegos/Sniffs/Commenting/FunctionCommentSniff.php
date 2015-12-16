@@ -2,57 +2,104 @@
 namespace Gamegos\Sniffs\Commenting;
 
 /* Imports from CodeSniffer */
-use PEAR_Sniffs_Commenting_FunctionCommentSniff;
 use PHP_CodeSniffer_File;
 use PHP_CodeSniffer_Tokens;
-use Squiz_Sniffs_Commenting_DocCommentAlignmentSniff;
+
+/* Imports from PEAR Sniffs */
+use PEAR_Sniffs_Commenting_FunctionCommentSniff;
 
 /**
  * Customized some rules from PEAR.Commenting.FunctionComment.
  * - Added {@inheritdoc} validation for overrided methods.
+ * - Added PHPUnit test class control for methods without doc comment.
  * @author Safak Ozpinar <safak@gamegos.com>
  */
 class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 {
     /**
+     * Get class parents and interfaces.
+     * Returns array of class and interface names or false if the class cannot be loaded.
+     * @param  \PHP_CodeSniffer_File $phpcsFile
+     * @param  int $stackPtr
+     * @param  string $reason
+     * @return array|bool
+     */
+    protected function getClassParentsAndInterfaces(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $reason)
+    {
+        $tokens  = $phpcsFile->getTokens();
+        $nsStart = $phpcsFile->findNext(array(T_NAMESPACE), 0) + 2;
+        $nsEnd   = $phpcsFile->findNext(array(T_SEMICOLON), $nsStart);
+        $class   = '';
+        for ($i = $nsStart; $i < $nsEnd; $i++) {
+            $class .= $tokens[$i]['content'];
+        }
+        $class .= '\\' . $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS), $nsEnd));
+
+        if (class_exists($class)) {
+            return array_merge(class_parents($class), class_implements($class));
+        }
+        $warning = 'Need class loader to ' . $reason;
+        $phpcsFile->addWarning($warning, $stackPtr, 'NeedClassLoader');
+        return false;
+    }
+
+    /**
      * Check if a comment has a valid {@inheritdoc} annotation.
-     * @param \PHP_CodeSniffer_File $phpcsFile
-     * @param int $stackPtr
-     * @param int $commentStart
-     * @param int $commentEnd
+     * @param  \PHP_CodeSniffer_File $phpcsFile
+     * @param  int $stackPtr
+     * @param  int $commentStart
+     * @param  int $commentEnd
+     * @return bool
      */
     protected function isInheritdoc(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart, $commentEnd)
     {
         $commentString = $phpcsFile->getTokensAsString($commentStart, $commentEnd - $commentStart + 1);
         if (preg_match('/\{\@inheritdoc\}/', $commentString)) {
-
-            $tokens  = $phpcsFile->getTokens();
-            $nsStart = $phpcsFile->findNext(array(T_NAMESPACE), 0) + 2;
-            $nsEnd   = $phpcsFile->findNext(array(T_SEMICOLON), $nsStart);
-            $class   = '';
-            for ($i = $nsStart; $i < $nsEnd; $i++) {
-                $class .= $tokens[$i]['content'];
-            }
-            $class .= '\\' . $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS), $nsEnd));
-
-            if (class_exists($class)) {
+            $classes = $this->getClassParentsAndInterfaces($phpcsFile, $stackPtr, 'validate {@inheritdoc}');
+            if (false !== $classes) {
                 $method = $phpcsFile->getDeclarationName($stackPtr);
-                foreach (array_merge(class_parents($class), class_implements($class)) as $interface) {
-                    if (method_exists($interface, $method)) {
+                foreach ($classes as $class) {
+                    if (method_exists($class, $method)) {
                         return true;
                     }
                 }
                 $error = 'No overrided method found for {@inheritdoc} annotation';
                 $phpcsFile->addError($error, $commentStart, 'InvalidInheritdoc');
             } else {
-                $warning = 'Cannot validate {@inheritdoc} annotation; class not loaded';
-                $phpcsFile->addWarning($warning, $stackPtr, 'NeedClassLoader');
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Check if a method is a PHPUnit test class method.
+     * @param  \PHP_CodeSniffer_File $phpcsFile
+     * @param  int $stackPtr
+     * @return bool
+     */
+    protected function isTestClassMethod(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    {
+        $testClasses = array(
+            'PHPUnit_Framework_TestCase'
+        );
+
+        $classes = $this->getClassParentsAndInterfaces($phpcsFile, $stackPtr, 'check for PHPUnit test class');
+        if (false !== $classes) {
+            foreach ($classes as $class) {
+                if (in_array($class, $testClasses)
+                    && stripos($phpcsFile->getDeclarationName($stackPtr), 'test') === 0
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
         $tokens = $phpcsFile->getTokens();
@@ -74,8 +121,10 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
             && $tokens[$commentEnd]['code'] !== T_COMMENT
         ) {
-            $phpcsFile->addError('Missing function doc comment', $stackPtr, 'Missing');
-            $phpcsFile->recordMetric($stackPtr, 'Function has doc comment', 'no');
+            if (!$this->isTestClassMethod($phpcsFile, $stackPtr)) {
+                $phpcsFile->addError('Missing function doc comment', $stackPtr, 'Missing');
+                $phpcsFile->recordMetric($stackPtr, 'Function has doc comment', 'no');
+            }
             return;
         } else {
             $phpcsFile->recordMetric($stackPtr, 'Function has doc comment', 'yes');
@@ -105,12 +154,8 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 
         $firstOnLine = $phpcsFile->findFirstOnLine(PHP_CodeSniffer_Tokens::$methodPrefixes, $stackPtr);
         if ($tokens[$commentStart]['column'] !== $tokens[$firstOnLine]['column']) {
-            $error = 'Doc comment is not aligned correctly.';
+            $error = 'Doc comment is not aligned correctly';
             $phpcsFile->addError($error, $commentStart, 'NotAligned');
-            $phpcsFile->removeTokenListener(
-                new Squiz_Sniffs_Commenting_DocCommentAlignmentSniff(), range($commentStart + 1, $commentEnd)
-            );
-            $phpcsFile->refreshTokenListeners();
         }
 
         if ($this->isInheritdoc($phpcsFile, $stackPtr, $commentStart, $commentEnd)) {
