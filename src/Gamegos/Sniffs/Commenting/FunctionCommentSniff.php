@@ -8,6 +8,10 @@ use PHP_CodeSniffer_Tokens;
 /* Imports from PEAR Sniffs */
 use PEAR_Sniffs_Commenting_FunctionCommentSniff;
 
+/* Imports from Gamegos CodeSniffer */
+use Gamegos\CodeSniffer\Helpers\ClassHelper;
+use Gamegos\CodeSniffer\Helpers\RulesetHelper;
+
 /**
  * Customized some rules from PEAR.Commenting.FunctionComment.
  * - Added {@inheritdoc} validation for overrided methods.
@@ -17,45 +21,20 @@ use PEAR_Sniffs_Commenting_FunctionCommentSniff;
 class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 {
     /**
-     * Get class parents and interfaces.
-     * Returns array of class and interface names or false if the class cannot be loaded.
-     * @param  \PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @param  string $reason
-     * @return array|bool
-     */
-    protected function getClassParentsAndInterfaces(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $reason)
-    {
-        $tokens  = $phpcsFile->getTokens();
-        $nsStart = $phpcsFile->findNext(array(T_NAMESPACE), 0) + 2;
-        $nsEnd   = $phpcsFile->findNext(array(T_SEMICOLON), $nsStart);
-        $class   = '';
-        for ($i = $nsStart; $i < $nsEnd; $i++) {
-            $class .= $tokens[$i]['content'];
-        }
-        $class .= '\\' . $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS), $nsEnd));
-
-        if (class_exists($class)) {
-            return array_merge(class_parents($class), class_implements($class));
-        }
-        $warning = 'Need class loader to ' . $reason;
-        $phpcsFile->addWarning($warning, $stackPtr, 'NeedClassLoader');
-        return false;
-    }
-
-    /**
-     * Check if a comment has a valid {@inheritdoc} annotation.
+     * Check if a comment has a valid 'inheritdoc' annotation.
      * @param  \PHP_CodeSniffer_File $phpcsFile
      * @param  int $stackPtr
      * @param  int $commentStart
      * @param  int $commentEnd
      * @return bool
      */
-    protected function isInheritdoc(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart, $commentEnd)
+    protected function validateInheritdoc(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart, $commentEnd)
     {
+        $classHelper = new ClassHelper($phpcsFile);
+
         $commentString = $phpcsFile->getTokensAsString($commentStart, $commentEnd - $commentStart + 1);
         if (preg_match('/\{\@inheritdoc\}/', $commentString)) {
-            $classes = $this->getClassParentsAndInterfaces($phpcsFile, $stackPtr, 'validate {@inheritdoc}');
+            $classes = $classHelper->getClassParentsAndInterfaces($stackPtr, 'validate {@inheritdoc}');
             if (false !== $classes) {
                 $method = $phpcsFile->getDeclarationName($stackPtr);
                 foreach ($classes as $class) {
@@ -73,31 +52,6 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
     }
 
     /**
-     * Check if a method is a PHPUnit test class method.
-     * @param  \PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @return bool
-     */
-    protected function isTestClassMethod(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
-    {
-        $testClasses = array(
-            'PHPUnit_Framework_TestCase'
-        );
-
-        $classes = $this->getClassParentsAndInterfaces($phpcsFile, $stackPtr, 'check for PHPUnit test class');
-        if (false !== $classes) {
-            foreach ($classes as $class) {
-                if (in_array($class, $testClasses)
-                    && stripos($phpcsFile->getDeclarationName($stackPtr), 'test') === 0
-                ) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
@@ -105,6 +59,8 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         $tokens = $phpcsFile->getTokens();
         $find   = PHP_CodeSniffer_Tokens::$methodPrefixes;
         $find[] = T_WHITESPACE;
+
+        $classHelper = new ClassHelper($phpcsFile);
 
         $commentEnd = $phpcsFile->findPrevious($find, ($stackPtr - 1), null, true);
         if ($tokens[$commentEnd]['code'] === T_COMMENT) {
@@ -121,7 +77,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
             && $tokens[$commentEnd]['code'] !== T_COMMENT
         ) {
-            if (!$this->isTestClassMethod($phpcsFile, $stackPtr)) {
+            if (!$classHelper->isTestClassMethod($stackPtr)) {
                 $phpcsFile->addError('Missing function doc comment', $stackPtr, 'Missing');
                 $phpcsFile->recordMetric($stackPtr, 'Function has doc comment', 'no');
             }
@@ -158,11 +114,23 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
             $phpcsFile->addError($error, $commentStart, 'NotAligned');
         }
 
-        if ($this->isInheritdoc($phpcsFile, $stackPtr, $commentStart, $commentEnd)) {
+        if ($this->validateInheritdoc($phpcsFile, $stackPtr, $commentStart, $commentEnd)) {
             return;
         }
-        $this->processReturn($phpcsFile, $stackPtr, $commentStart);
-        $this->processThrows($phpcsFile, $stackPtr, $commentStart);
-        $this->processParams($phpcsFile, $stackPtr, $commentStart);
+
+        if ($classHelper->isTestClassMethod($stackPtr)) {
+            $rulesetHelper = new RulesetHelper($phpcsFile);
+            $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingParamTag', 0);
+
+            $this->processReturn($phpcsFile, $stackPtr, $commentStart);
+            $this->processThrows($phpcsFile, $stackPtr, $commentStart);
+            $this->processParams($phpcsFile, $stackPtr, $commentStart);
+
+            $rulesetHelper->restore();
+        } else {
+            $this->processReturn($phpcsFile, $stackPtr, $commentStart);
+            $this->processThrows($phpcsFile, $stackPtr, $commentStart);
+            $this->processParams($phpcsFile, $stackPtr, $commentStart);
+        }
     }
 }
