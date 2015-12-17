@@ -1,8 +1,7 @@
 <?php
 namespace Gamegos\Sniffs\Functions;
 
-// Imports from CodeSniffer.
-use PHP_CodeSniffer_Sniff;
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer_File;
 use Generic_Sniffs_Functions_OpeningFunctionBraceKernighanRitchieSniff as OpeningFunctionBraceKRSniff;
 
@@ -15,9 +14,7 @@ use Generic_Sniffs_Functions_OpeningFunctionBraceKernighanRitchieSniff as Openin
 class OpeningFunctionBraceKernighanRitchieSniff extends OpeningFunctionBraceKRSniff
 {
     /**
-     * @param PHP_CodeSniffer_File $phpcsFile
-     * @param int $stackPtr
-     * @see   Generic_Sniffs_Functions_OpeningFunctionBraceKernighanRitchieSniff::process()
+     * {@inheritdoc}
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {

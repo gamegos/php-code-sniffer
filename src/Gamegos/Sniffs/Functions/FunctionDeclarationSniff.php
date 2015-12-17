@@ -1,22 +1,21 @@
 <?php
 namespace Gamegos\Sniffs\Functions;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSnifferz */
 use PEAR_Sniffs_Functions_FunctionDeclarationSniff;
 use PHP_CodeSniffer_File;
 
 /**
  * Gamegos.Functions.FunctionDeclaration Sniff
- * Customized some of Squiz.Functions.MultiLineFunctionDeclaration rules.
- * - Added fixer for Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction rule.
+ * Customized some of PEAR.Functions.FunctionDeclaration rules.
+ * - Added fixer for SpaceAfterFunction rule.
  * - Forwarded closures to Gamegos.Functions.OpeningFunctionBraceKernighanRitchie sniff.
+ * @author Safak Ozpinar <safak@gamegos.com>
  */
 class FunctionDeclarationSniff extends PEAR_Sniffs_Functions_FunctionDeclarationSniff
 {
     /**
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @see    PEAR_Sniffs_Functions_FunctionDeclarationSniff::process()
+     * {@inheritdoc}
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
@@ -45,12 +44,7 @@ class FunctionDeclarationSniff extends PEAR_Sniffs_Functions_FunctionDeclaration
     }
 
     /**
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @param  array $tokens
-     * @see    PEAR_Sniffs_Functions_FunctionDeclarationSniff::processSingleLineDeclaration()
-     * @see    Generic_Sniffs_Functions_OpeningFunctionBraceKernighanRitchieSniff::process()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * {@inheritdoc}
      */
     public function processSingleLineDeclaration(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $tokens)
     {

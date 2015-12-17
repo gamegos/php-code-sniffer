@@ -1,11 +1,11 @@
 <?php
 namespace Gamegos\Sniffs\WhiteSpace;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer_File;
 use PHP_CodeSniffer_Tokens;
 
-// Imports from Squiz Sniffs.
+/* Imports from Squiz Sniffs */
 use Squiz_Sniffs_WhiteSpace_MemberVarSpacingSniff;
 
 /**
@@ -17,10 +17,7 @@ use Squiz_Sniffs_WhiteSpace_MemberVarSpacingSniff;
 class MemberVarSpacingSniff extends Squiz_Sniffs_WhiteSpace_MemberVarSpacingSniff
 {
     /**
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @see    Squiz_Sniffs_WhiteSpace_MemberVarSpacingSniff::processMemberVar()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * {@inheritdoc}
      */
     protected function processMemberVar(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
@@ -74,8 +71,8 @@ class MemberVarSpacingSniff extends Squiz_Sniffs_WhiteSpace_MemberVarSpacingSnif
             $first = $phpcsFile->findNext(PHP_CodeSniffer_Tokens::$commentTokens, ($first + 1));
         }
 
-        $prev       = $phpcsFile->findPrevious(PHP_CodeSniffer_Tokens::$emptyTokens, ($first - 1), null, true);
-        $foundLines = ($tokens[$first]['line'] - $tokens[$prev]['line'] - 1);
+        $prev          = $phpcsFile->findPrevious(PHP_CodeSniffer_Tokens::$emptyTokens, ($first - 1), null, true);
+        $foundLines    = ($tokens[$first]['line'] - $tokens[$prev]['line'] - 1);
         $expectedLines = $tokens[$prev]['code'] == T_OPEN_CURLY_BRACKET ? 0 : 1;
         if ($foundLines === $expectedLines) {
             return;

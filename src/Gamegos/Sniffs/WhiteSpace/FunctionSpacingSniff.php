@@ -1,7 +1,7 @@
 <?php
 namespace Gamegos\Sniffs\WhiteSpace;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer_Sniff;
 use PHP_CodeSniffer_File;
 
@@ -21,8 +21,7 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
     protected $spacing = 1;
 
     /**
-     * @see    PHP_CodeSniffer_Sniff::register()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * {@inheritdoc}
      */
     public function register()
     {
@@ -30,10 +29,7 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
     }
 
     /**
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @see    PHP_CodeSniffer_Sniff::process()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * {@inheritdoc}
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {

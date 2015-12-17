@@ -1,25 +1,22 @@
 <?php
 namespace Gamegos\Sniffs\Commenting;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer;
 use PHP_CodeSniffer_File;
 
-// Imports from Squiz Sniffs.
+/* Imports from Squiz Sniffs */
 use Squiz_Sniffs_Commenting_VariableCommentSniff;
 
 /**
  * Customized some rules from Squiz.Commenting.VariableComment.
  * - Added 'bool' and 'int' into allowed variable types.
- * @author Safak Ozpinar
+ * @author Safak Ozpinar <safak@gamegos.com>
  */
 class VariableCommentSniff extends Squiz_Sniffs_Commenting_VariableCommentSniff
 {
     /**
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @see    Squiz_Sniffs_Commenting_VariableCommentSniff::processMemberVar()
-     * @author Safak Ozpinar <safak@gamegos.com>
+     * {@inheritdoc}
      */
     public function processMemberVar(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {

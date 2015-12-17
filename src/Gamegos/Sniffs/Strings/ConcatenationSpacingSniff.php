@@ -1,22 +1,20 @@
 <?php
 namespace Gamegos\Sniffs\Strings;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer_Sniff;
 use PHP_CodeSniffer_File;
 
 /**
- * Gamegos.Strings.ConcatenationSpacing Sniff
+ * Gamegos.Strings.ConcatenationSpacing sniff Based on Squiz.Strings.ConcatenationSpacing
  * 1) There must be only one space between the concatenation operator (.) and the strings being concatenated.
  * 2) Multiline string concatenations must be aligned.
- * @author Safak Ozpinar
+ * @author Safak Ozpinar <safak@gamegos.com>
  */
 class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
 {
     /**
-     * @return array
-     * @see    PHP_CodeSniffer_Sniff::register()
-     * @author Safak Ozpinar
+     * {@inheritdoc}
      */
     public function register()
     {
@@ -24,10 +22,7 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
     }
 
     /**
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @see    PHP_CodeSniffer_Sniff::process()
-     * @author Safak Ozpinar
+     * {@inheritdoc}
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
@@ -87,12 +82,12 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
                 return $tokens[$startOfStmt]['column'] + 3;
             };
 
-            $found = $tokens[$stackPtr]['column'] - 1;
+            $found    = $tokens[$stackPtr]['column'] - 1;
             $expected = $findExpected($stackPtr);
 
             if ($found != $expected) {
                 $message = 'Concat operator not aligned correctly; expected %s space(s) but found %s.';
-                $fix = $phpcsFile->addFixableError($message, $stackPtr, 'NotAligned', array($expected, $found));
+                $fix     = $phpcsFile->addFixableError($message, $stackPtr, 'NotAligned', array($expected, $found));
                 if ($fix === true) {
                     $addBefore = $expected - $found;
                     if ($addBefore > 0) {
@@ -115,7 +110,7 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
         }
 
         $message = 'Concat operator must be surrounded by a single space';
-        $fix = $phpcsFile->addFixableError($message, $stackPtr, 'PaddingFound');
+        $fix     = $phpcsFile->addFixableError($message, $stackPtr, 'PaddingFound');
         if ($fix === true) {
             if ($tokens[$stackPtr - 1]['code'] === T_WHITESPACE) {
                 $phpcsFile->fixer->replaceToken($stackPtr - 1, ' ');

@@ -1,11 +1,11 @@
 <?php
 namespace Gamegos\Sniffs\Arrays;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer_File;
 use PHP_CodeSniffer_Tokens;
 
-// Imports from Squiz Sniffs.
+/* Imports from Squiz Sniffs */
 use Squiz_Sniffs_Arrays_ArrayDeclarationSniff;
 
 /**
@@ -17,16 +17,12 @@ use Squiz_Sniffs_Arrays_ArrayDeclarationSniff;
  * - Removed MultiLineNotAllowed rule.
  * - Removed NoKeySpecified rule.
  * - Removed KeySpecified rule.
+ * @author Safak Ozpinar <safak@gamegos.com>
  */
 class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 {
     /**
-     *
-     * @param  PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @param  int $arrayStart
-     * @param  int $arrayEnd
-     * @see    Squiz_Sniffs_Arrays_ArrayDeclarationSniff::processMultiLineArray()
+     * {@inheritdoc}
      */
     public function processMultiLineArray(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $arrayStart, $arrayEnd)
     {
@@ -185,7 +181,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                 }
 
                 $currentEntry['arrow'] = $nextToken;
-                $keyUsed = true;
+                $keyUsed               = true;
 
                 // Find the start of index that uses this double arrow.
                 $indexEnd   = $phpcsFile->findPrevious(T_WHITESPACE, ($nextToken - 1), $arrayStart, true);
@@ -210,12 +206,12 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                 // Find the value of this index.
                 $nextContent           = $phpcsFile->findNext(T_WHITESPACE, ($nextToken + 1), $arrayEnd, true);
                 $currentEntry['value'] = $nextContent;
-                $indices[] = $currentEntry;
-                $lastToken = $nextToken;
+                $indices[]             = $currentEntry;
+                $lastToken             = $nextToken;
             }//end if
         }//end for
 
-        // REMOVED MultiLineNotAllowed rule.
+        /* REMOVED MultiLineNotAllowed rule. */
 
         /*
             This section checks for arrays that don't specify keys.
@@ -389,8 +385,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$index['arrow']]['column'] !== $arrowStart) {
                 $expected = $arrowStart - (strlen($index['index_content']) + $tokens[$index['index']]['column']);
-                $found    = $tokens[$index['arrow']]['column']
-                            - (strlen($index['index_content']) + $tokens[$index['index']]['column']);
+                $found    = $tokens[$index['arrow']]['column'] - (strlen($index['index_content']) + $tokens[$index['index']]['column']);
                 $error    = 'Array double arrow not aligned correctly; expected %s space(s) but found %s';
                 $data     = array(
                     $expected,
@@ -411,8 +406,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$index['value']]['column'] !== $valueStart) {
                 $expected = $valueStart - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']);
-                $found    = $tokens[$index['value']]['column']
-                            - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']);
+                $found    = $tokens[$index['value']]['column'] - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']);
                 if ($found < 0) {
                     $found = 'newline';
                 }

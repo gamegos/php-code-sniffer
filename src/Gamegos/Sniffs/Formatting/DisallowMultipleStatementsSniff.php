@@ -1,7 +1,7 @@
 <?php
 namespace Gamegos\Sniffs\Formatting;
 
-// Imports from CodeSniffer.
+/* Imports from CodeSniffer */
 use PHP_CodeSniffer_Sniff;
 use PHP_CodeSniffer_File;
 
@@ -9,12 +9,12 @@ use PHP_CodeSniffer_File;
  * Customized Generic.Formatting.DisallowMultipleStatements rule.
  * - Fixed adding 2 blank lines when applying this fixer with
  *   Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace fixer together.
+ * @author Safak Ozpinar <safak@gamegos.com>
  */
 class DisallowMultipleStatementsSniff implements PHP_CodeSniffer_Sniff
 {
     /**
-     * @return array
-     * @see    PHP_CodeSniffer_Sniff::register()
+     * {@inheritdoc}
      */
     public function register()
     {
@@ -22,9 +22,7 @@ class DisallowMultipleStatementsSniff implements PHP_CodeSniffer_Sniff
     }
 
     /**
-     * @param PHP_CodeSniffer_File $phpcsFile
-     * @param int $stackPtr
-     * @see   PHP_CodeSniffer_Sniff::process()
+     * {@inheritdoc}
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
