@@ -64,13 +64,18 @@ class ClassHelper
         if (null === $this->parentsAndInterfaces) {
             $phpcsFile = $this->phpcsFile;
             $tokens    = $phpcsFile->getTokens();
-            $nsStart   = $phpcsFile->findNext(array(T_NAMESPACE), 0) + 2;
-            $nsEnd     = $phpcsFile->findNext(array(T_SEMICOLON), $nsStart);
+            $nsStart   = $phpcsFile->findNext(array(T_NAMESPACE), 0);
             $class     = '';
-            for ($i = $nsStart; $i < $nsEnd; $i++) {
-                $class .= $tokens[$i]['content'];
+            if (false !== $nsStart) {
+                $nsEnd = $phpcsFile->findNext(array(T_SEMICOLON), $nsStart + 2);
+                for ($i = $nsStart + 2; $i < $nsEnd; $i++) {
+                    $class .= $tokens[$i]['content'];
+                }
+                $class .= '\\';
+            } else {
+                $nsEnd = 0;
             }
-            $class .= '\\' . $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS, T_INTERFACE), $nsEnd));
+            $class .= $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS, T_INTERFACE), $nsEnd));
 
             if (class_exists($class) || interface_exists($class)) {
                 $this->parentsAndInterfaces = array_merge(class_parents($class), class_implements($class));
