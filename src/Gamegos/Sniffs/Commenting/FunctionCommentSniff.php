@@ -118,8 +118,13 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
             return;
         }
 
+        $rulesetHelper = new RulesetHelper($phpcsFile);
+        $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingParamComment', 0);
+        $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingReturn', 0);
+        $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.SpacingAfterParamType', 0);
+        $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.SpacingAfterParamName', 0);
+
         if ($classHelper->isTestClassMethod($stackPtr)) {
-            $rulesetHelper = new RulesetHelper($phpcsFile);
             $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingParamTag', 0);
 
             $this->processReturn($phpcsFile, $stackPtr, $commentStart);
