@@ -85,7 +85,7 @@ class ClassHelper
         }
         if (false === $this->parentsAndInterfaces) {
             $warning = 'Need class loader to ' . $reason;
-            $phpcsFile->addWarning($warning, $stackPtr, 'NeedClassLoader');
+            $phpcsFile->addWarning($warning, $stackPtr, 'Internal.Gamegos.NeedClassLoader');
         }
         return $this->parentsAndInterfaces;
     }
