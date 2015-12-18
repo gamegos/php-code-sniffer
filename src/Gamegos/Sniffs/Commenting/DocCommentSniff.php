@@ -12,15 +12,16 @@ use Gamegos\CodeSniffer\Helpers\ClassHelper;
  * Customized Generic.Commenting.DocComment rules.
  * - Changed MissingShort rule type from error to warning.
  * - Ignored MissingShort rule for PHPUnit test class methods.
- * - Removed SpacingBetween rule.
- * - Removed LongNotCapital rule.
- * - Removed SpacingBeforeTags rule.
- * - Removed ParamGroup rule.
- * - Removed NonParamGroup rule.
- * - Removed SpacingAfterTagGroup rule.
- * - Removed TagValueIndent rule.
- * - Removed ParamNotFirst rule.
- * - Removed TagsNotGrouped rule.
+ * - Removed rules for comments with descriptions:
+ *     • SpacingBetween
+ *     • LongNotCapital
+ *     • SpacingBeforeTags
+ *     • ParamGroup
+ *     • NonParamGroup
+ *     • SpacingAfterTagGroup
+ *     • TagValueIndent
+ *     • ParamNotFirst
+ *     • TagsNotGrouped
  * @author Safak Ozpinar <safak@gamegos.com>
  */
 class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff

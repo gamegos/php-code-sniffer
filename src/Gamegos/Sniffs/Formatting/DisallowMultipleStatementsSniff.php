@@ -53,6 +53,7 @@ class DisallowMultipleStatementsSniff implements PHP_CodeSniffer_Sniff
             && $tokens[$prev + 1]['code'] != T_CLOSE_CURLY_BRACKET
         ) {
             $phpcsFile->recordMetric($stackPtr, 'Multiple statements on same line', 'yes');
+
             $error = 'Each PHP statement must be on a line by itself';
             $fix   = $phpcsFile->addFixableError($error, $stackPtr, 'SameLine');
             if ($fix === true) {
