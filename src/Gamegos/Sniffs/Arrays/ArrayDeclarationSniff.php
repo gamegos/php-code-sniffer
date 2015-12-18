@@ -12,11 +12,11 @@ use Squiz_Sniffs_Arrays_ArrayDeclarationSniff;
  * Customized/removed some rules from Squiz.Arrays.ArrayDeclaration.
  * - Arranged array element indents by start position of the first (declaration) line.
  * - Number of spaces before array elements is increased from 1 to 4.
- * - Removed NoComma rule (syntax checker does this).
- * - Removed NoCommaAfterLast rule.
- * - Removed MultiLineNotAllowed rule.
- * - Removed NoKeySpecified rule.
- * - Removed KeySpecified rule.
+ * - [1] Removed NoKeySpecified rule.
+ * - [2] Removed KeySpecified rule.
+ * - [3] Removed MultiLineNotAllowed rule.
+ * - [4] Removed NoCommaAfterLast rule.
+ * - [5] Removed NoComma rule.
  * @author Safak Ozpinar <safak@gamegos.com>
  */
 class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
@@ -83,8 +83,11 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$nextToken]['code'] === T_ARRAY) {
                 // Let subsequent calls of this test handle nested arrays.
-                $indices[] = array('value' => $nextToken);
-                $lastToken = $nextToken;
+                if ($tokens[$lastToken]['code'] !== T_DOUBLE_ARROW) {
+                    $indices[] = array('value' => $nextToken);
+                    $lastToken = $nextToken;
+                }
+
                 $nextToken = $tokens[$tokens[$nextToken]['parenthesis_opener']]['parenthesis_closer'];
                 $nextToken = $phpcsFile->findNext(T_WHITESPACE, ($nextToken + 1), null, true);
                 if ($tokens[$nextToken]['code'] !== T_COMMA) {
@@ -98,9 +101,29 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$nextToken]['code'] === T_OPEN_SHORT_ARRAY) {
                 // Let subsequent calls of this test handle nested arrays.
-                $indices[] = array('value' => $nextToken);
-                $lastToken = $nextToken;
+                if ($tokens[$lastToken]['code'] !== T_DOUBLE_ARROW) {
+                    $indices[] = array('value' => $nextToken);
+                    $lastToken = $nextToken;
+                }
+
                 $nextToken = $tokens[$nextToken]['bracket_closer'];
+                $nextToken = $phpcsFile->findNext(T_WHITESPACE, ($nextToken + 1), null, true);
+                if ($tokens[$nextToken]['code'] !== T_COMMA) {
+                    $nextToken--;
+                } else {
+                    $lastToken = $nextToken;
+                }
+
+                continue;
+            }
+
+            if ($tokens[$nextToken]['code'] === T_CLOSURE) {
+                if ($tokens[$lastToken]['code'] !== T_DOUBLE_ARROW) {
+                    $indices[] = array('value' => $nextToken);
+                    $lastToken = $nextToken;
+                }
+
+                $nextToken = $tokens[$nextToken]['scope_closer'];
                 $nextToken = $phpcsFile->findNext(T_WHITESPACE, ($nextToken + 1), null, true);
                 if ($tokens[$nextToken]['code'] !== T_COMMA) {
                     $nextToken--;
@@ -142,7 +165,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                 }
 
                 if ($keyUsed === true && $tokens[$lastToken]['code'] === T_COMMA) {
-                    // REMOVED 'NoKeySpecified' rule.
+                    // [1] Removed NoKeySpecified rule.
                 }
 
                 if ($keyUsed === false) {
@@ -166,9 +189,15 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                         }
                     }
 
-                    $valueContent = $phpcsFile->findNext(T_WHITESPACE, ($lastToken + 1), $nextToken, true);
-                    $indices[]    = array('value' => $valueContent);
-                    $singleUsed   = true;
+                    $valueContent = $phpcsFile->findNext(
+                        PHP_CodeSniffer_Tokens::$emptyTokens,
+                        ($lastToken + 1),
+                        $nextToken,
+                        true
+                    );
+
+                    $indices[]  = array('value' => $valueContent);
+                    $singleUsed = true;
                 }//end if
 
                 $lastToken = $nextToken;
@@ -177,7 +206,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$nextToken]['code'] === T_DOUBLE_ARROW) {
                 if ($singleUsed === true) {
-                    // REMOVED 'KeySpecified' rule.
+                    // [2] Removed KeySpecified rule.
                 }
 
                 $currentEntry['arrow'] = $nextToken;
@@ -204,14 +233,20 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                 }
 
                 // Find the value of this index.
-                $nextContent           = $phpcsFile->findNext(T_WHITESPACE, ($nextToken + 1), $arrayEnd, true);
+                $nextContent = $phpcsFile->findNext(
+                    PHP_CodeSniffer_Tokens::$emptyTokens,
+                    ($nextToken + 1),
+                    $arrayEnd,
+                    true
+                );
+
                 $currentEntry['value'] = $nextContent;
                 $indices[]             = $currentEntry;
                 $lastToken             = $nextToken;
             }//end if
         }//end for
 
-        /* REMOVED MultiLineNotAllowed rule. */
+        /* [3] Removed MultiLineNotAllowed rule. */
 
         /*
             This section checks for arrays that don't specify keys.
@@ -236,7 +271,8 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             );
 
             if ($tokens[$trailingContent]['code'] !== T_COMMA) {
-                // REMOVED NoCommaAfterLast rule.
+                $phpcsFile->recordMetric($stackPtr, 'Array end comma', 'no');
+                // [4] Removed NoCommaAfterLast rule.
             } else {
                 $phpcsFile->recordMetric($stackPtr, 'Array end comma', 'yes');
             }
@@ -384,8 +420,8 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }
 
             if ($tokens[$index['arrow']]['column'] !== $arrowStart) {
-                $expected = $arrowStart - (strlen($index['index_content']) + $tokens[$index['index']]['column']);
-                $found    = $tokens[$index['arrow']]['column'] - (strlen($index['index_content']) + $tokens[$index['index']]['column']);
+                $expected = ($arrowStart - (strlen($index['index_content']) + $tokens[$index['index']]['column']));
+                $found    = ($tokens[$index['arrow']]['column'] - (strlen($index['index_content']) + $tokens[$index['index']]['column']));
                 $error    = 'Array double arrow not aligned correctly; expected %s space(s) but found %s';
                 $data     = array(
                     $expected,
@@ -405,8 +441,8 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }
 
             if ($tokens[$index['value']]['column'] !== $valueStart) {
-                $expected = $valueStart - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']);
-                $found    = $tokens[$index['value']]['column'] - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']);
+                $expected = ($valueStart - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']));
+                $found    = ($tokens[$index['value']]['column'] - ($tokens[$index['arrow']]['length'] + $tokens[$index['arrow']]['column']));
                 if ($found < 0) {
                     $found = 'newline';
                 }
@@ -437,45 +473,68 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }//end if
 
             // Check each line ends in a comma.
-            if ($tokens[$index['value']]['code'] !== T_ARRAY
-                && $tokens[$index['value']]['code'] !== T_OPEN_SHORT_ARRAY
-            ) {
-                $valueLine = $tokens[$index['value']]['line'];
-                $nextComma = false;
-                for ($i = ($index['value'] + 1); $i < $arrayEnd; $i++) {
-                    // Skip bracketed statements, like function calls.
-                    if ($tokens[$i]['code'] === T_OPEN_PARENTHESIS) {
-                        $i         = $tokens[$i]['parenthesis_closer'];
-                        $valueLine = $tokens[$i]['line'];
-                        continue;
-                    }
-
-                    if ($tokens[$i]['code'] === T_COMMA) {
-                        $nextComma = $i;
-                        break;
-                    }
+            $valueLine = $tokens[$index['value']]['line'];
+            $nextComma = false;
+            for ($i = $index['value']; $i < $arrayEnd; $i++) {
+                // Skip bracketed statements, like function calls.
+                if ($tokens[$i]['code'] === T_OPEN_PARENTHESIS) {
+                    $i         = $tokens[$i]['parenthesis_closer'];
+                    $valueLine = $tokens[$i]['line'];
+                    continue;
                 }
 
-                if (($nextComma === false) || ($tokens[$nextComma]['line'] !== $valueLine)) {
-                    // REMOVED NoComma rule.
+                if ($tokens[$i]['code'] === T_ARRAY) {
+                    $i         = $tokens[$tokens[$i]['parenthesis_opener']]['parenthesis_closer'];
+                    $valueLine = $tokens[$i]['line'];
+                    continue;
                 }
 
-                // Check that there is no space before the comma.
-                if ($nextComma !== false && $tokens[($nextComma - 1)]['code'] === T_WHITESPACE) {
-                    $content     = $tokens[($nextComma - 2)]['content'];
-                    $spaceLength = $tokens[($nextComma - 1)]['length'];
-                    $error       = 'Expected 0 spaces between "%s" and comma; %s found';
-                    $data        = array(
-                        $content,
-                        $spaceLength
-                    );
-
-                    $fix = $phpcsFile->addFixableError($error, $nextComma, 'SpaceBeforeComma', $data);
-                    if ($fix === true) {
-                        $phpcsFile->fixer->replaceToken(($nextComma - 1), '');
-                    }
+                // Skip to the end of multi-line strings.
+                if (isset(PHP_CodeSniffer_Tokens::$stringTokens[$tokens[$i]['code']]) === true) {
+                    $i = $phpcsFile->findNext($tokens[$i]['code'], ($i + 1), null, true);
+                    $i--;
+                    $valueLine = $tokens[$i]['line'];
+                    continue;
                 }
-            }//end if
+
+                if ($tokens[$i]['code'] === T_OPEN_SHORT_ARRAY) {
+                    $i         = $tokens[$i]['bracket_closer'];
+                    $valueLine = $tokens[$i]['line'];
+                    continue;
+                }
+
+                if ($tokens[$i]['code'] === T_CLOSURE) {
+                    $i         = $tokens[$i]['scope_closer'];
+                    $valueLine = $tokens[$i]['line'];
+                    continue;
+                }
+
+                if ($tokens[$i]['code'] === T_COMMA) {
+                    $nextComma = $i;
+                    break;
+                }
+            }//end for
+
+            if ($nextComma === false || ($tokens[$nextComma]['line'] !== $valueLine)) {
+                // [5] Removed NoComma rule.
+            }
+
+            // Check that there is no space before the comma.
+            if ($nextComma !== false && $tokens[($nextComma - 1)]['code'] === T_WHITESPACE) {
+                $content     = $tokens[($nextComma - 2)]['content'];
+                $spaceLength = $tokens[($nextComma - 1)]['length'];
+                $error       = 'Expected 0 spaces between "%s" and comma; %s found';
+                $data        = array(
+                    $content,
+                    $spaceLength,
+                );
+
+                $fix = $phpcsFile->addFixableError($error, $nextComma, 'SpaceBeforeComma', $data);
+                if ($fix === true) {
+                    $phpcsFile->fixer->replaceToken(($nextComma - 1), '');
+                }
+            }
         }//end foreach
+
     }//end processMultiLineArray()
 }//end class
