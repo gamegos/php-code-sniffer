@@ -4,7 +4,7 @@ chdir(dirname(__DIR__));
 $binary = $argv[1];
 
 $scriptFilename = "scripts/{$binary}.php";
-$pharFilename = "bin/{$binary}.phar";
+$pharFilename   = "bin/{$binary}.phar";
 $binaryFilename = "bin/{$binary}";
 
 if (file_exists($pharFilename)) {
@@ -31,7 +31,13 @@ foreach ($directories as $dirname) {
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dirname));
     while ($iterator->valid()) {
         if ($iterator->isFile()) {
-            $phar->addFile($iterator->getPathName());
+            $path = $iterator->getPathName();
+            if ('php' == strtolower($iterator->getExtension())) {
+                $contents = php_strip_whitespace($path);
+                $phar->addFromString($path, $contents);
+            } else {
+                $phar->addFile($path);
+            }
         }
         $iterator->next();
     }
