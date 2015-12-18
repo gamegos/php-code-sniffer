@@ -12,7 +12,7 @@ use Gamegos\CodeSniffer\Helpers\ClassHelper;
  * Customized Generic.Commenting.DocComment rules.
  * - Changed MissingShort rule type from error to warning.
  * - Ignored MissingShort rule for PHPUnit test class methods.
- * - Removed rules for comments with descriptions:
+ * - Removed rules for comments with long descriptions:
  *     • SpacingBetween
  *     • LongNotCapital
  *     • SpacingBeforeTags
