@@ -58,6 +58,7 @@ class MemberVarSpacingSniff extends Squiz_Sniffs_WhiteSpace_MemberVarSpacingSnif
             }//end if
         }//end if
 
+        // There needs to be 1 blank line before the var, not counting comments.
         if ($start === $stackPtr) {
             // No comment found.
             $first = $phpcsFile->findFirstOnLine(PHP_CodeSniffer_Tokens::$emptyTokens, $start, true);

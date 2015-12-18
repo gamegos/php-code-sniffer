@@ -6,9 +6,11 @@ use PHP_CodeSniffer_Sniff;
 use PHP_CodeSniffer_File;
 
 /**
- * Gamegos.Strings.ConcatenationSpacing sniff Based on Squiz.Strings.ConcatenationSpacing
- * 1) There must be only one space between the concatenation operator (.) and the strings being concatenated.
- * 2) Multiline string concatenations must be aligned.
+ * Gamegos.Strings.ConcatenationSpacing sniff
+ * - PaddingFound:
+ *     There must be only one space between the concatenation operator (.) and the strings being concatenated.
+ * - NotAligned:
+ *     Multiline string concatenations must be aligned.
  * @author Safak Ozpinar <safak@gamegos.com>
  */
 class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
@@ -28,6 +30,7 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
     {
         $tokens = $phpcsFile->getTokens();
 
+        // Find the previous operand.
         $previous = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr - 1, null, true);
         if ($tokens[$previous]['line'] !== $tokens[$stackPtr]['line']) {
             $before = 'newline';
@@ -37,6 +40,7 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
             $before = $tokens[$stackPtr - 1]['length'];
         }
 
+        // Find the next operand.
         $next = $phpcsFile->findPrevious(T_WHITESPACE, $stackPtr + 1, null, true);
         if ($tokens[$next]['line'] !== $tokens[$stackPtr]['line']) {
             $after = 'newline';
@@ -46,44 +50,20 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
             $after = $tokens[$stackPtr + 1]['length'];
         }
 
+        // Record metrics.
         $phpcsFile->recordMetric($stackPtr, 'Spacing before string concat', $before);
         $phpcsFile->recordMetric($stackPtr, 'Spacing after string concat', $after);
 
+        // Check for expected spaces between operands on the same line.
+        if ($before === 1 && $after === 1) {
+            return;
+        }
+
+        // Check for expected alingment between operators on different lines.
         if ($before === 'newline') {
-            $findExpected = function ($stackPtr) use ($phpcsFile, $tokens, & $findExpected) {
-                // Find the last operator in the previous line.
-                $prevLineOp = $phpcsFile->findPrevious(
-                    array(
-                        T_WHITESPACE, T_CONSTANT_ENCAPSED_STRING
-                    ),
-                    $stackPtr - 1,
-                    null,
-                    true
-                );
-
-                if ($tokens[$prevLineOp]['code'] === T_EQUAL) {
-                    // Align to the assignment operator.
-                    return $tokens[$prevLineOp]['column'] - 1;
-                } elseif ($tokens[$prevLineOp]['code'] === T_STRING_CONCAT) {
-                    // Align to the previous line.
-                    $prev2 = $phpcsFile->findPrevious(T_WHITESPACE, $prevLineOp - 1, null, true);
-                    if ($tokens[$prev2]['line'] !== $tokens[$prevLineOp]['line']) {
-                        return $tokens[$prevLineOp]['column'] - 1;
-                    }
-                    return $findExpected($prevLineOp);
-                }
-
-                $startOfStmt = $phpcsFile->findStartOfStatement($stackPtr);
-                if ($tokens[$startOfStmt]['code'] == T_RETURN) {
-                    // Align to the return statement with 5 spaces.
-                    return $tokens[$startOfStmt]['column'] + 4;
-                }
-                // Align to the start of the statement with 4 spaces.
-                return $tokens[$startOfStmt]['column'] + 3;
-            };
 
             $found    = $tokens[$stackPtr]['column'] - 1;
-            $expected = $findExpected($stackPtr);
+            $expected = $this->findExpected($phpcsFile, $stackPtr);
 
             if ($found != $expected) {
                 $message = 'Concat operator not aligned correctly; expected %s space(s) but found %s.';
@@ -101,14 +81,10 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
                     }
                 }
             }
-
             return;
         }
 
-        if ($before === 1 && $after === 1) {
-            return;
-        }
-
+        // Unexpected spaces found.
         $message = 'Concat operator must be surrounded by a single space';
         $fix     = $phpcsFile->addFixableError($message, $stackPtr, 'PaddingFound');
         if ($fix === true) {
@@ -124,5 +100,45 @@ class ConcatenationSpacingSniff implements PHP_CodeSniffer_Sniff
                 $phpcsFile->fixer->addContent($stackPtr, ' ');
             }
         }
+    }
+
+    /**
+     * Find expected number of spaces to align operators.
+     * @param  \PHP_CodeSniffer_File $phpcsFile
+     * @param  int $stackPtr
+     * @return int
+     */
+    protected function findExpected(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
+    {
+        $tokens = $phpcsFile->getTokens();
+        // Find the last operator in the previous line.
+        $prevLineOp = $phpcsFile->findPrevious(
+            array(
+                T_WHITESPACE, T_CONSTANT_ENCAPSED_STRING
+            ),
+            $stackPtr - 1,
+            null,
+            true
+        );
+
+        if ($tokens[$prevLineOp]['code'] === T_EQUAL) {
+            // Align to the assignment operator.
+            return $tokens[$prevLineOp]['column'] - 1;
+        } elseif ($tokens[$prevLineOp]['code'] === T_STRING_CONCAT) {
+            // Align to the previous line.
+            $prev2 = $phpcsFile->findPrevious(T_WHITESPACE, $prevLineOp - 1, null, true);
+            if ($tokens[$prev2]['line'] !== $tokens[$prevLineOp]['line']) {
+                return $tokens[$prevLineOp]['column'] - 1;
+            }
+            return $this->findExpected($phpcsFile, $prevLineOp);
+        }
+
+        $startOfStmt = $phpcsFile->findStartOfStatement($stackPtr);
+        if ($tokens[$startOfStmt]['code'] == T_RETURN) {
+            // Align to the return statement with 5 spaces.
+            return $tokens[$startOfStmt]['column'] + 4;
+        }
+        // Align to the start of the statement with 4 spaces.
+        return $tokens[$startOfStmt]['column'] + 3;
     }
 }

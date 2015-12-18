@@ -33,10 +33,12 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
-        $tokens        = $phpcsFile->getTokens();
-        $this->spacing = (int) $this->spacing;
+        $tokens = $phpcsFile->getTokens();
 
-        /* Check the number of blank lines after the function. */
+        /*
+            Check the number of blank lines
+            after the function.
+        */
 
         if (isset($tokens[$stackPtr]['scope_closer']) === false) {
             // Must be an interface method, so the closer is the semicolon.
@@ -73,11 +75,11 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
         $expectedLines = $this->spacing;
 
         if ($foundLines !== $expectedLines && $tokens[$nextContent]['code'] != T_CLOSE_CURLY_BRACKET) {
-            // Create error message.
             $error = 'Expected %s blank line';
             if ($expectedLines > 1) {
                 $error .= 's';
             }
+
             $error .= ' after function; %s found';
             $data   = array(
                 $expectedLines,
@@ -100,7 +102,10 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
             }//end if
         }//end if
 
-        /* Check the number of blank lines before the function. */
+        /*
+            Check the number of blank lines
+            before the function.
+        */
 
         $prevLineToken = null;
         for ($i = $stackPtr; $i > 0; $i--) {
@@ -125,12 +130,7 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
                 && $tokens[$prevContent]['line'] === ($currentLine - 1)
             ) {
                 // Account for function comments.
-                $prevContent = $phpcsFile->findPrevious(
-                    T_WHITESPACE,
-                    $tokens[$prevContent]['comment_opener'] - 1,
-                    null,
-                    true
-                );
+                $prevContent = $phpcsFile->findPrevious(T_WHITESPACE, ($tokens[$prevContent]['comment_opener'] - 1), null, true);
             }
 
             // Before we throw an error, check that we are not throwing an error
