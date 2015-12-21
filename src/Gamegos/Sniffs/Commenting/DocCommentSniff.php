@@ -10,9 +10,9 @@ use Gamegos\CodeSniffer\Helpers\ClassHelper;
 
 /**
  * Customized Generic.Commenting.DocComment rules.
- * - Changed MissingShort rule type from error to warning.
- * - Ignored MissingShort rule for PHPUnit test class methods.
- * - Removed rules for comments with long descriptions:
+ * - [1] Ignored MissingShort rule for PHPUnit test class methods.
+ * - [2] Changed MissingShort rule type from error to warning.
+ * - [3] Removed rules for comments with long descriptions:
  *     • SpacingBetween
  *     • LongNotCapital
  *     • SpacingBeforeTags
@@ -22,7 +22,6 @@ use Gamegos\CodeSniffer\Helpers\ClassHelper;
  *     • TagValueIndent
  *     • ParamNotFirst
  *     • TagsNotGrouped
- * @author Safak Ozpinar <safak@gamegos.com>
  */
 class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
 {
@@ -90,8 +89,10 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
 
         // Check for a comment description.
         if ($tokens[$short]['code'] !== T_DOC_COMMENT_STRING) {
+            // [1] Ignored MissingShort rule for PHPUnit test class methods.
             if (!$this->isTestClassMethodComment($phpcsFile, $commentEnd)) {
                 $error = 'Missing short description in doc comment';
+                // [2] Changed MissingShort rule type from error to warning.
                 $phpcsFile->addWarning($error, $stackPtr, 'MissingShort');
                 return;
             }
@@ -136,13 +137,16 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
             $error = 'Doc comment short description must start with a capital letter';
             $phpcsFile->addError($error, $short, 'ShortNotCapital');
         }
+
+        // [3] Removed rules for comments with long descriptions.
     }
 
     /**
      * Check i f a token is a test class method comment.
-     * @param \PHP_CodeSniffer_File $phpcsFile
+     * @param  \PHP_CodeSniffer_File $phpcsFile
      * @param  int $commentEnd
      * @return bool
+     * @author Safak Ozpinar <safak@gamegos.com>
      */
     protected function isTestClassMethodComment(PHP_CodeSniffer_File $phpcsFile, $commentEnd)
     {
@@ -160,6 +164,7 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
      * @param  \PHP_CodeSniffer_File $phpcsFile
      * @param  int $commentEnd
      * @return int|bool
+     * @author Safak Ozpinar <safak@gamegos.com>
      */
     protected function getCommentMethod(PHP_CodeSniffer_File $phpcsFile, $commentEnd)
     {

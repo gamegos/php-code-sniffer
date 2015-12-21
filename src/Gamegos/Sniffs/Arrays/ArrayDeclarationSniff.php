@@ -10,14 +10,13 @@ use Squiz_Sniffs_Arrays_ArrayDeclarationSniff;
 
 /**
  * Customized/removed some rules from Squiz.Arrays.ArrayDeclaration.
- * - Arranged array element indents by start position of the first (declaration) line.
- * - Number of spaces before array elements is increased from 1 to 4.
- * - [1] Removed NoKeySpecified rule.
- * - [2] Removed KeySpecified rule.
- * - [3] Removed MultiLineNotAllowed rule.
- * - [4] Removed NoCommaAfterLast rule.
- * - [5] Removed NoComma rule.
- * @author Safak Ozpinar <safak@gamegos.com>
+ * - [1] Arranged array element indents by start position of the first (declaration) line.
+ * - [2] Number of spaces before array elements is increased from 1 to 4.
+ * - [3] Removed NoKeySpecified rule.
+ * - [4] Removed KeySpecified rule.
+ * - [5] Removed MultiLineNotAllowed rule.
+ * - [6] Removed NoCommaAfterLast rule.
+ * - [7] Removed NoComma rule.
  */
 class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 {
@@ -26,9 +25,9 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
      */
     public function processMultiLineArray(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $arrayStart, $arrayEnd)
     {
-        $tokens         = $phpcsFile->getTokens();
-        $firstOnLine    = $tokens[$phpcsFile->findFirstOnLine(T_WHITESPACE, $arrayStart, true)];
-        $firstLineStart = $firstOnLine['column'];
+        $tokens = $phpcsFile->getTokens();
+        // [1] Arranged array element indents by start position of the first (declaration) line.
+        $firstLineStart = $tokens[$phpcsFile->findFirstOnLine(T_WHITESPACE, $arrayStart, true)]['column'];
 
         // Check the closing bracket is on a new line.
         $lastContent = $phpcsFile->findPrevious(T_WHITESPACE, ($arrayEnd - 1), $arrayStart, true);
@@ -165,7 +164,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                 }
 
                 if ($keyUsed === true && $tokens[$lastToken]['code'] === T_COMMA) {
-                    // [1] Removed NoKeySpecified rule.
+                    // [3] Removed NoKeySpecified rule.
                 }
 
                 if ($keyUsed === false) {
@@ -206,7 +205,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$nextToken]['code'] === T_DOUBLE_ARROW) {
                 if ($singleUsed === true) {
-                    // [2] Removed KeySpecified rule.
+                    // [4] Removed KeySpecified rule.
                 }
 
                 $currentEntry['arrow'] = $nextToken;
@@ -221,10 +220,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                     $currentEntry['index_content'] = $tokens[$indexEnd]['content'];
                 } else {
                     $currentEntry['index']         = $indexStart;
-                    $currentEntry['index_content'] = $phpcsFile->getTokensAsString(
-                        $indexStart,
-                        ($indexEnd - $indexStart + 1)
-                    );
+                    $currentEntry['index_content'] = $phpcsFile->getTokensAsString($indexStart, ($indexEnd - $indexStart + 1));
                 }
 
                 $indexLength = strlen($currentEntry['index_content']);
@@ -246,7 +242,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }//end if
         }//end for
 
-        /* [3] Removed MultiLineNotAllowed rule. */
+        /* [5] Removed MultiLineNotAllowed rule. */
 
         /*
             This section checks for arrays that don't specify keys.
@@ -272,7 +268,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
 
             if ($tokens[$trailingContent]['code'] !== T_COMMA) {
                 $phpcsFile->recordMetric($stackPtr, 'Array end comma', 'no');
-                // [4] Removed NoCommaAfterLast rule.
+                // [6] Removed NoCommaAfterLast rule.
             } else {
                 $phpcsFile->recordMetric($stackPtr, 'Array end comma', 'yes');
             }
@@ -297,6 +293,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
                         $phpcsFile->fixer->addNewlineBefore($value['value']);
                     }
                 } elseif ($tokens[($value['value'] - 1)]['code'] === T_WHITESPACE) {
+                    // [2] Number of spaces before array elements is increased from 1 to 4.
                     $expected = $firstLineStart + 3;
 
                     $first = $phpcsFile->findFirstOnLine(T_WHITESPACE, $value['value'], true);
@@ -516,7 +513,7 @@ class ArrayDeclarationSniff extends Squiz_Sniffs_Arrays_ArrayDeclarationSniff
             }//end for
 
             if ($nextComma === false || ($tokens[$nextComma]['line'] !== $valueLine)) {
-                // [5] Removed NoComma rule.
+                // [7] Removed NoComma rule.
             }
 
             // Check that there is no space before the comma.

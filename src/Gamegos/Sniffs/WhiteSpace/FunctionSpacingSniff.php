@@ -7,15 +7,14 @@ use PHP_CodeSniffer_File;
 
 /**
  * Customized Squiz.WhiteSpace.FunctionSpacing rules.
- * - No blank line required before the method which is the first defined element of a class.
- * - No blank line required after the method which is the last defined element of a class.
- * - Fixed fixing spaces before method definitions.
- * @author Safak Ozpinar <safak@gamegos.com>
+ * - [1] Expected no blank lines after the method which is the last defined element of a class.
+ * - [2] Expected no blank lines before the method which is the first defined element of a class.
+ * - [3] Fixed fixing spaces before method definitions.
  */
 class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
 {
     /**
-     * Number of expected spaces before/after a mehod.
+     * The number of blank lines between functions.
      * @var int
      */
     protected $spacing = 1;
@@ -72,8 +71,8 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
             }
         }
 
+        // [1] Expected no blank lines after the method which is the last defined element of a class.
         $expectedLines = $this->spacing;
-
         if ($foundLines !== $expectedLines && $tokens[$nextContent]['code'] != T_CLOSE_CURLY_BRACKET) {
             $error = 'Expected %s blank line';
             if ($expectedLines > 1) {
@@ -167,8 +166,8 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
             }//end while
         }//end if
 
+        // [2] Expected no blank lines before the method which is the first defined element of a class.
         $expectedLines = $tokens[$prevContent]['code'] == T_OPEN_CURLY_BRACKET ? 0 : $this->spacing;
-
         if ($foundLines !== $expectedLines) {
             $error = 'Expected %s blank line';
             if ($expectedLines > 1) {
@@ -198,6 +197,7 @@ class FunctionSpacingSniff implements PHP_CodeSniffer_Sniff
                 } else {
                     $nextContent = $phpcsFile->findNext(T_WHITESPACE, ($nextSpace + 1), null, true);
                     $phpcsFile->fixer->beginChangeset();
+                    // [3] Fixed fixing spaces before method definitions.
                     for ($i = $nextSpace; $i < ($nextContent - 2); $i++) {
                         $phpcsFile->fixer->replaceToken($i, '');
                     }

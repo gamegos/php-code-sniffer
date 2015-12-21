@@ -9,7 +9,6 @@ use PHP_CodeSniffer_File;
  * Customized Generic.Formatting.DisallowMultipleStatements rule.
  * - Fixed adding 2 blank lines when applying this fixer with
  *   Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace fixer together.
- * @author Safak Ozpinar <safak@gamegos.com>
  */
 class DisallowMultipleStatementsSniff implements PHP_CodeSniffer_Sniff
 {
@@ -49,6 +48,10 @@ class DisallowMultipleStatementsSniff implements PHP_CodeSniffer_Sniff
             }
         }
 
+        /*
+         * Fixed adding 2 blank lines when applying this fixer with
+         * Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace fixer together.
+         */
         if ($tokens[$prev]['line'] === $tokens[$stackPtr]['line']
             && $tokens[$prev + 1]['code'] != T_CLOSE_CURLY_BRACKET
         ) {

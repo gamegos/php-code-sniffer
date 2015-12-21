@@ -14,43 +14,13 @@ use Gamegos\CodeSniffer\Helpers\RulesetHelper;
 
 /**
  * Customized some rules from PEAR.Commenting.FunctionComment.
- * - Added {@inheritdoc} validation for overrided methods.
- * - Added PHPUnit test class control for methods without doc comment.
- * @author Safak Ozpinar <safak@gamegos.com>
+ * - [1] Added PHPUnit test class control for methods without doc comment.
+ * - [2] Added {@inheritdoc} validation for overrided methods.
+ * - [3] Removed MissingParamComment, MissingReturn, SpacingAfterParamType and SpacingAfterParamName rules.
+ * - [4] Ignored MissingParamTag rule for PHPUnit test class methods.
  */
 class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 {
-    /**
-     * Check if a comment has a valid 'inheritdoc' annotation.
-     * @param  \PHP_CodeSniffer_File $phpcsFile
-     * @param  int $stackPtr
-     * @param  int $commentStart
-     * @param  int $commentEnd
-     * @return bool
-     */
-    protected function validateInheritdoc(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart, $commentEnd)
-    {
-        $classHelper = new ClassHelper($phpcsFile);
-
-        $commentString = $phpcsFile->getTokensAsString($commentStart, $commentEnd - $commentStart + 1);
-        if (preg_match('/\{\@inheritdoc\}/', $commentString)) {
-            $classes = $classHelper->getClassParentsAndInterfaces($stackPtr, 'validate {@inheritdoc}');
-            if (false !== $classes) {
-                $method = $phpcsFile->getDeclarationName($stackPtr);
-                foreach ($classes as $class) {
-                    if (method_exists($class, $method)) {
-                        return true;
-                    }
-                }
-                $error = 'No overrided method found for {@inheritdoc} annotation';
-                $phpcsFile->addError($error, $commentStart, 'InvalidInheritdoc');
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -77,6 +47,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
             && $tokens[$commentEnd]['code'] !== T_COMMENT
         ) {
+            // [1] Added PHPUnit test class control for methods without doc comment.
             if (!$classHelper->isTestClassMethod($stackPtr)) {
                 $phpcsFile->addError('Missing function doc comment', $stackPtr, 'Missing');
                 $phpcsFile->recordMetric($stackPtr, 'Function has doc comment', 'no');
@@ -108,22 +79,19 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
             }
         }
 
-        $firstOnLine = $phpcsFile->findFirstOnLine(PHP_CodeSniffer_Tokens::$methodPrefixes, $stackPtr);
-        if ($tokens[$commentStart]['column'] !== $tokens[$firstOnLine]['column']) {
-            $error = 'Doc comment is not aligned correctly';
-            $phpcsFile->addError($error, $commentStart, 'NotAligned');
-        }
-
+        // [2] Added {@inheritdoc} validation for overrided methods.
         if ($this->validateInheritdoc($phpcsFile, $stackPtr, $commentStart, $commentEnd)) {
             return;
         }
 
+        // [3] Removed MissingParamComment, MissingReturn, SpacingAfterParamType and SpacingAfterParamName rules.
         $rulesetHelper = new RulesetHelper($phpcsFile);
         $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingParamComment', 0);
         $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingReturn', 0);
         $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.SpacingAfterParamType', 0);
         $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.SpacingAfterParamName', 0);
 
+        // [4] Ignored MissingParamTag rule for PHPUnit test class methods.
         if ($classHelper->isTestClassMethod($stackPtr)) {
             $rulesetHelper->setRuleSeverity('Gamegos.Commenting.FunctionComment.MissingParamTag', 0);
 
@@ -137,5 +105,37 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
             $this->processThrows($phpcsFile, $stackPtr, $commentStart);
             $this->processParams($phpcsFile, $stackPtr, $commentStart);
         }
+    }
+
+    /**
+     * Check if a comment has a valid 'inheritdoc' annotation.
+     * @param  \PHP_CodeSniffer_File $phpcsFile
+     * @param  int $stackPtr
+     * @param  int $commentStart
+     * @param  int $commentEnd
+     * @return bool
+     * @author Safak Ozpinar <safak@gamegos.com>
+     */
+    protected function validateInheritdoc(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart, $commentEnd)
+    {
+        $classHelper = new ClassHelper($phpcsFile);
+
+        $commentString = $phpcsFile->getTokensAsString($commentStart, $commentEnd - $commentStart + 1);
+        if (preg_match('/\{\@inheritdoc\}/', $commentString)) {
+            $classes = $classHelper->getClassParentsAndInterfaces($stackPtr, 'validate {@inheritdoc}');
+            if (false !== $classes) {
+                $method = $phpcsFile->getDeclarationName($stackPtr);
+                foreach ($classes as $class) {
+                    if (method_exists($class, $method)) {
+                        return true;
+                    }
+                }
+                $error = 'No overrided method found for {@inheritdoc} annotation';
+                $phpcsFile->addError($error, $commentStart, 'InvalidInheritdoc');
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 }
