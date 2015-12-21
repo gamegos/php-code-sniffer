@@ -1,6 +1,7 @@
 {
     "name": "gamegos/php-code-sniffer",
     "type": "library",
+    "license": "MIT",
     "description": "Gamegos PHP Code Sniffer",
     "autoload": {
         "psr-4": {
