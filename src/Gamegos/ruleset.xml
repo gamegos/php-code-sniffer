@@ -12,6 +12,7 @@
         <exclude name="Generic.Formatting.DisallowMultipleStatements"/>
         <exclude name="Generic.Formatting.NoSpaceAfterCast"/>
     </rule>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
     <rule ref="Squiz.Commenting.DocCommentAlignment"/>
     <rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
         <type>warning</type>
