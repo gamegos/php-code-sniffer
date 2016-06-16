@@ -80,6 +80,7 @@ Imported sniffs:
 * All sniffs in `Generic.Formatting` category except:
   * `DisallowMultipleStatements` (replaced by [`Gamegos.Formatting.DisallowMultipleStatements`](#gamegosformattingdisallowmultiplestatements))
   * `NoSpaceAfterCast`
+* `Generic.Arrays.DisallowLongArraySyntax`
 
 ### Squiz
 Imported sniffs:
