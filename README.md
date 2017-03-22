@@ -164,7 +164,7 @@ php scripts/build.php
 ```
 
 ### PHP_CodeSniffer Dependency
-Current version is built on [PHP_CodeSniffer 2.5.1](https://github.com/squizlabs/PHP_CodeSniffer/releases/tag/2.5.1)
+Current version is built on [PHP_CodeSniffer 2.8.1](https://github.com/squizlabs/PHP_CodeSniffer/releases/tag/2.8.1)
 which is locked in [composer.lock](composer.lock) file. To import new versions; edit [composer.json](composer.json) file if required and
 run `composer update` command, then commit the modified [composer.lock](composer.lock) file. Updating [PHP_CodeSniffer] version may
 break some of [Gamegos sniffs](#custom-sniffs), so you must carefully track any changes on [PHP_CodeSniffer] before updating.
