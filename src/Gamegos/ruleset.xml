@@ -11,6 +11,7 @@
     <rule ref="Generic.Formatting">
         <exclude name="Generic.Formatting.DisallowMultipleStatements"/>
         <exclude name="Generic.Formatting.NoSpaceAfterCast"/>
+        <exclude name="Generic.Formatting.SpaceAfterNot"/>
     </rule>
     <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
     <rule ref="Squiz.Commenting.DocCommentAlignment"/>
