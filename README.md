@@ -72,7 +72,7 @@ will allow sniffs to do this.
 ## Imported Standards
 
 ### PSR2
-All PSR2 sniffs are imported by default.
+All PSR2 sniffs except `Squiz.WhiteSpace.ControlStructureSpacing` are imported by default.
 * `PSR2.ControlStructures.ElseIfDeclaration.NotAllowed` rule type is considered as `error` instead of `warning`.
 
 ### Generic
