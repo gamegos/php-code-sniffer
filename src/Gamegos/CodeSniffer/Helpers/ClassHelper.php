@@ -40,7 +40,8 @@ class ClassHelper
      * @var array
      */
     protected static $testClassPrototypes = array(
-        'PHPUnit_Framework_TestCase'
+        'PHPUnit_Framework_TestCase',
+        'PHPUnit\\Framework\\TestCase',
     );
 
     /**
