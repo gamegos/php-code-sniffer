@@ -76,7 +76,7 @@ class ClassHelper
             } else {
                 $nsEnd = 0;
             }
-            $class .= $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS, T_INTERFACE), $nsEnd));
+            $class .= $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS, T_INTERFACE, T_TRAIT), $nsEnd));
 
             if (class_exists($class) || interface_exists($class)) {
                 $this->parentsAndInterfaces = array_merge(class_parents($class), class_implements($class));
