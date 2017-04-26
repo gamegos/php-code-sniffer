@@ -67,6 +67,11 @@ class ClassHelper
             $tokens    = $phpcsFile->getTokens();
             $nsStart   = $phpcsFile->findNext(array(T_NAMESPACE), 0);
             $class     = '';
+
+            // Set the default return value.
+            $this->parentsAndInterfaces = false;
+
+            // Build the namespace.
             if (false !== $nsStart) {
                 $nsEnd = $phpcsFile->findNext(array(T_SEMICOLON), $nsStart + 2);
                 for ($i = $nsStart + 2; $i < $nsEnd; $i++) {
@@ -76,17 +81,18 @@ class ClassHelper
             } else {
                 $nsEnd = 0;
             }
-            $class .= $phpcsFile->getDeclarationName($phpcsFile->findNext(array(T_CLASS, T_INTERFACE, T_TRAIT), $nsEnd));
 
-            if (class_exists($class) || interface_exists($class)) {
-                $this->parentsAndInterfaces = array_merge(class_parents($class), class_implements($class));
-            } else {
-                $this->parentsAndInterfaces = false;
+            // Find the class/interface declaration.
+            $classPtr = $phpcsFile->findNext(array(T_CLASS, T_INTERFACE), $nsEnd);
+            if (false !== $classPtr) {
+                $class .= $phpcsFile->getDeclarationName($classPtr);
+                if (class_exists($class) || interface_exists($class)) {
+                    $this->parentsAndInterfaces = array_merge(class_parents($class), class_implements($class));
+                } else {
+                    $warning = 'Need class loader to ' . $reason;
+                    $phpcsFile->addWarning($warning, $stackPtr, 'Internal.Gamegos.NeedClassLoader');
+                }
             }
-        }
-        if (false === $this->parentsAndInterfaces) {
-            $warning = 'Need class loader to ' . $reason;
-            $phpcsFile->addWarning($warning, $stackPtr, 'Internal.Gamegos.NeedClassLoader');
         }
         return $this->parentsAndInterfaces;
     }
