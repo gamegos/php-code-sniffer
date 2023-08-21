@@ -1,5 +1,9 @@
 # Gamegos PHP Code Sniffer Change Log
 
+## [0.7.0] - 2023-08-21
+* Added support for inheritdoc annotation variations.
+* Updated `PHP_CodeSniffer` version to 2.9.2.
+
 ## [0.6.1] - 2017-04-26
 * Fixed sniffing failure for files without class or interface declaration.
 
