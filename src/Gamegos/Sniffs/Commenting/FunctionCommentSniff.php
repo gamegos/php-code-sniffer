@@ -15,7 +15,7 @@ use Gamegos\CodeSniffer\Helpers\RulesetHelper;
 /**
  * Customized some rules from PEAR.Commenting.FunctionComment.
  * - [1] Added PHPUnit test class control for methods without doc comment.
- * - [2] Added {@inheritdoc} validation for overrided methods.
+ * - [2] Added {@inheritdoc} and {@inheritDoc} validation for override methods.
  * - [3] Removed MissingParamComment, MissingReturn, SpacingAfterParamType and SpacingAfterParamName rules.
  * - [4] Ignored MissingParamTag rule for PHPUnit test class methods.
  */
@@ -23,6 +23,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
 {
     /**
      * {@inheritdoc}
+     * @throws \PHP_CodeSniffer_Exception
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
@@ -79,7 +80,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
             }
         }
 
-        // [2] Added {@inheritdoc} validation for overrided methods.
+        // [2] Added {@inheritdoc} validation for override methods.
         if ($this->validateInheritdoc($phpcsFile, $stackPtr, $commentStart, $commentEnd)) {
             return;
         }
@@ -114,6 +115,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
      * @param  int $commentStart
      * @param  int $commentEnd
      * @return bool
+     * @throws \PHP_CodeSniffer_Exception
      * @author Safak Ozpinar <safak@gamegos.com>
      */
     protected function validateInheritdoc(PHP_CodeSniffer_File $phpcsFile, $stackPtr, $commentStart, $commentEnd)
@@ -121,7 +123,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         $classHelper = new ClassHelper($phpcsFile);
 
         $commentString = $phpcsFile->getTokensAsString($commentStart, $commentEnd - $commentStart + 1);
-        if (preg_match('/\{\@inheritdoc\}/', $commentString)) {
+        if (preg_match('/\{@inherit[Dd]oc}$|@inherit[Dd]oc$/', $commentString)) {
             $classes = $classHelper->getClassParentsAndInterfaces($stackPtr, 'validate {@inheritdoc}');
             if (false !== $classes) {
                 $method = $phpcsFile->getDeclarationName($stackPtr);
@@ -130,7 +132,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
                         return true;
                     }
                 }
-                $error = 'No overrided method found for {@inheritdoc} annotation';
+                $error = 'No override method found for {@inheritdoc} annotation';
                 $phpcsFile->addError($error, $commentStart, 'InvalidInheritdoc');
             } else {
                 return true;
