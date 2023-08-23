@@ -1,5 +1,8 @@
 # Gamegos PHP Code Sniffer Change Log
 
+## [0.8.0] - 2023-08-23
+* Fixed doc comment validation for override methods and test methods.
+
 ## [0.7.0] - 2023-08-21
 * Added support for inheritdoc annotation variations.
 * Updated `PHP_CodeSniffer` version to 2.9.2.
