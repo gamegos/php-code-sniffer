@@ -106,7 +106,7 @@ Imported sniffs:
 
 ### Gamegos.Commenting.DocComment
 * Extended from `Generic.Commenting.DocComment`.
-* Ignored `MissingShort` rule for PHPUnit test class methods <sup name="fn1c1">[[1]](#fn1)</sup>.
+* Ignored `MissingShort` rule for override methods and PHPUnit test class methods <sup name="fn1c1">[[1]](#fn1)</sup>.
 * Changed `MissingShort` rule type from `error` to `warning`.
 * Removed rules for comments with long descriptions:
   * `SpacingBetween`
@@ -121,8 +121,8 @@ Imported sniffs:
 
 ### Gamegos.Commenting.FunctionComment
 * Extended from `PEAR.Commenting.FunctionComment`.
-* Added PHPUnit test class control for methods without doc comment <sup name="fn1c2">[[1]](#fn1)</sup>.
-* Added `{@inheritdoc}` validation for overrided methods <sup name="fn1c3">[[1]](#fn1)</sup>.
+* Allowed override methods and PHPUnit test class methods without doc comments <sup name="fn1c2">[[1]](#fn1)</sup>.
+* Added `{@inheritdoc}` validation for override methods <sup name="fn1c3">[[1]](#fn1)</sup>.
 * Removed `MissingParamComment`, `MissingReturn`, `SpacingAfterParamType` and `SpacingAfterParamName` rules.
 * Ignored `MissingParamTag` rule for PHPUnit test class methods <sup name="fn1c4">[[1]](#fn1)</sup>.
 

@@ -14,7 +14,7 @@ use Gamegos\CodeSniffer\Helpers\RulesetHelper;
 
 /**
  * Customized some rules from PEAR.Commenting.FunctionComment.
- * - [1] Added PHPUnit test class control for methods without doc comment.
+ * - [1] Allowed override methods and test class methods without doc comments.
  * - [2] Added {@inheritdoc} and {@inheritDoc} validation for override methods.
  * - [3] Removed MissingParamComment, MissingReturn, SpacingAfterParamType and SpacingAfterParamName rules.
  * - [4] Ignored MissingParamTag rule for PHPUnit test class methods.
@@ -48,8 +48,8 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         if ($tokens[$commentEnd]['code'] !== T_DOC_COMMENT_CLOSE_TAG
             && $tokens[$commentEnd]['code'] !== T_COMMENT
         ) {
-            // [1] Added PHPUnit test class control for methods without doc comment.
-            if (!$classHelper->isTestClassMethod($stackPtr)) {
+            // [1] Allow override methods and test class methods without doc comments.
+            if (!$classHelper->isTestClassMethod($stackPtr) && !$classHelper->isOverrideMethod($stackPtr)) {
                 $phpcsFile->addError('Missing function doc comment', $stackPtr, 'Missing');
                 $phpcsFile->recordMetric($stackPtr, 'Function has doc comment', 'no');
             }
@@ -123,7 +123,7 @@ class FunctionCommentSniff extends PEAR_Sniffs_Commenting_FunctionCommentSniff
         $classHelper = new ClassHelper($phpcsFile);
 
         $commentString = $phpcsFile->getTokensAsString($commentStart, $commentEnd - $commentStart + 1);
-        if (preg_match('/\{@inherit[Dd]oc}$|@inherit[Dd]oc$/', $commentString)) {
+        if (preg_match('/\{@inherit[Dd]oc}|@inherit[Dd]oc/', $commentString)) {
             $classes = $classHelper->getClassParentsAndInterfaces($stackPtr, 'validate {@inheritdoc}');
             if (false !== $classes) {
                 $method = $phpcsFile->getDeclarationName($stackPtr);

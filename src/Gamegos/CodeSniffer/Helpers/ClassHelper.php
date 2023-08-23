@@ -59,6 +59,7 @@ class ClassHelper
      * @param  int $stackPtr
      * @param  string $reason
      * @return array|bool
+     * @throws \PHP_CodeSniffer_Exception
      */
     public function getClassParentsAndInterfaces($stackPtr, $reason)
     {
@@ -101,6 +102,7 @@ class ClassHelper
      * Check if a class is a PHPUnit test class.
      * @param  int $stackPtr
      * @return bool
+     * @throws \PHP_CodeSniffer_Exception
      */
     public function isTestClass($stackPtr)
     {
@@ -124,6 +126,7 @@ class ClassHelper
      * Check if a method is a PHPUnit test class method.
      * @param  int $stackPtr
      * @return bool
+     * @throws \PHP_CodeSniffer_Exception
      */
     public function isTestClassMethod($stackPtr)
     {
@@ -141,5 +144,25 @@ class ClassHelper
             }
         }
         return $this->testClassMethods[$stackPtr];
+    }
+
+    /**
+     * Check if a method is an override method.
+     * @param $stackPtr
+     * @return bool
+     * @throws \PHP_CodeSniffer_Exception
+     */
+    public function isOverrideMethod($stackPtr)
+    {
+        $classes = $this->getClassParentsAndInterfaces($stackPtr, 'check for PHPUnit test class');
+        if (false !== $classes) {
+            $method = $this->phpcsFile->getDeclarationName($stackPtr);
+            foreach ($classes as $class) {
+                if (method_exists($class, $method)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

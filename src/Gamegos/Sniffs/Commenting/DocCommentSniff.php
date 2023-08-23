@@ -3,6 +3,7 @@ namespace Gamegos\Sniffs\Commenting;
 
 /* Imports from CodeSniffer */
 use PHP_CodeSniffer_File;
+use PHP_CodeSniffer_Tokens;
 
 /* Imports from Generic sniffs */
 use Generic_Sniffs_Commenting_DocCommentSniff;
@@ -10,7 +11,7 @@ use Gamegos\CodeSniffer\Helpers\ClassHelper;
 
 /**
  * Customized Generic.Commenting.DocComment rules.
- * - [1] Ignored MissingShort rule for PHPUnit test class methods.
+ * - [1] Ignored MissingShort rule for override methods and PHPUnit test class methods.
  * - [2] Changed MissingShort rule type from error to warning.
  * - [3] Removed rules for comments with long descriptions:
  *     • SpacingBetween
@@ -27,6 +28,7 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
 {
     /**
      * {@inheritdoc}
+     * @throws \PHP_CodeSniffer_Exception
      */
     public function process(PHP_CodeSniffer_File $phpcsFile, $stackPtr)
     {
@@ -89,8 +91,8 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
 
         // Check for a comment description.
         if ($tokens[$short]['code'] !== T_DOC_COMMENT_STRING) {
-            // [1] Ignored MissingShort rule for PHPUnit test class methods.
-            if (!$this->isTestClassMethodComment($phpcsFile, $commentEnd)) {
+            // [1] Ignored MissingShort rule for override methods and PHPUnit test class methods.
+            if (!$this->isMissingShortAllowed($phpcsFile, $commentEnd)) {
                 $error = 'Missing short description in doc comment';
                 // [2] Changed MissingShort rule type from error to warning.
                 $phpcsFile->addWarning($error, $stackPtr, 'MissingShort');
@@ -142,18 +144,19 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
     }
 
     /**
-     * Check i f a token is a test class method comment.
+     * Check if the short description is allowed to be missing in the comment.
      * @param  \PHP_CodeSniffer_File $phpcsFile
      * @param  int $commentEnd
      * @return bool
+     * @throws \PHP_CodeSniffer_Exception
      * @author Safak Ozpinar <safak@gamegos.com>
      */
-    protected function isTestClassMethodComment(PHP_CodeSniffer_File $phpcsFile, $commentEnd)
+    protected function isMissingShortAllowed(PHP_CodeSniffer_File $phpcsFile, $commentEnd)
     {
         $method = $this->getCommentMethod($phpcsFile, $commentEnd);
         if (false !== $method) {
             $classHelper = new ClassHelper($phpcsFile);
-            return $classHelper->isTestClassMethod($method);
+            return $classHelper->isTestClassMethod($method) || $classHelper->isOverrideMethod($method);
         }
         return false;
     }
@@ -170,7 +173,7 @@ class DocCommentSniff extends Generic_Sniffs_Commenting_DocCommentSniff
     {
         $tokens = $phpcsFile->getTokens();
         $next   = $phpcsFile->findNext(array(T_WHITESPACE), $commentEnd + 1, null, true);
-        if (in_array($tokens[$next]['code'], \PHP_CodeSniffer_Tokens::$methodPrefixes)) {
+        if (in_array($tokens[$next]['code'], PHP_CodeSniffer_Tokens::$methodPrefixes)) {
             return $phpcsFile->findNext(array(T_FUNCTION), $next, $phpcsFile->findEndOfStatement($next));
         }
         return false;
